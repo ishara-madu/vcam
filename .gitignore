@@ -1,0 +1,67 @@
+# ==============================================================================
+# vcam — Android to Mac Virtual Camera (.gitignore)
+# ==============================================================================
+
+# macOS System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+# General Editors & IDEs
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# ------------------------------------------------------------------------------
+# Android (vcam-android)
+# ------------------------------------------------------------------------------
+.gradle/
+build/
+**/build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Local Configuration & SDK paths
+local.properties
+
+# Android Build Outputs & Packages
+*.apk
+*.ap_
+*.aab
+*.dex
+
+# Keystores & Signing Secrets
+*.jks
+*.keystore
+!debug.keystore
+
+# ------------------------------------------------------------------------------
+# macOS / Swift (vcam-mac)
+# ------------------------------------------------------------------------------
+# Swift Package Manager
+.build/
+**/.build/
+Package.resolved
+
+# macOS App Build Bundles
+vcam-mac/build/
+
+# Xcode Artifacts (if generated or inspected)
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+*.xcuserstate
+
+# Crash Reports & Logs
+*.log
+*.crash
