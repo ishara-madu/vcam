@@ -5,22 +5,22 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
-private val VCamDarkColorScheme = darkColorScheme(
-    primary = NeonCyan,
-    onPrimary = DeepBackground,
-    primaryContainer = ElectricBlue,
+private val VCamMinimalDarkScheme = darkColorScheme(
+    primary = Color.White,
+    onPrimary = PureBlack,
+    primaryContainer = DarkSurfaceElevated,
     onPrimaryContainer = Color.White,
-    secondary = ElectricBlue,
+    secondary = TextSecondary,
     onSecondary = Color.White,
-    tertiary = LiveGreen,
-    onTertiary = DeepBackground,
-    background = DeepBackground,
+    tertiary = StatusGreen,
+    onTertiary = PureBlack,
+    background = PureBlack,
     onBackground = TextPrimary,
     surface = DarkSurface,
     onSurface = TextPrimary,
     surfaceVariant = DarkSurfaceElevated,
     onSurfaceVariant = TextSecondary,
-    outline = BorderSubtle
+    outline = GlassBorder
 )
 
 @Composable
@@ -28,7 +28,7 @@ fun VcamTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(
-        colorScheme = VCamDarkColorScheme,
+        colorScheme = VCamMinimalDarkScheme,
         typography = Typography,
         content = content
     )

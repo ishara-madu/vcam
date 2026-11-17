@@ -22,100 +22,73 @@ public struct StatsOverlayView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Virtual Camera System Status Header
-            HStack(spacing: 8) {
+        HStack(spacing: 14) {
+            // Virtual Camera Status Indicator Dot
+            HStack(spacing: 6) {
                 Circle()
-                    .fill(virtualCameraActive ? Color.green : Color.orange)
-                    .frame(width: 8, height: 8)
+                    .fill(virtualCameraActive ? Color(red: 0.2, green: 0.85, blue: 0.4) : Color.orange)
+                    .frame(width: 7, height: 7)
 
-                Text(virtualCameraActive ? "Virtual Camera System-Wide Active" : "Virtual Camera Standby")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundColor(.white.opacity(0.9))
-
-                Spacer()
-
-                Text("CoreMediaIO")
-                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color.white.opacity(0.1))
-                    .clipShape(Capsule())
-                    .foregroundColor(.cyan)
+                Text(virtualCameraActive ? "LIVE" : "STANDBY")
+                    .font(.system(size: 10, weight: .bold, design: .monospaced))
+                    .foregroundColor(virtualCameraActive ? Color(red: 0.2, green: 0.85, blue: 0.4) : .orange)
             }
 
-            Divider()
-                .background(Color.white.opacity(0.15))
+            Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .frame(width: 1, height: 12)
 
-            // Metrics Grid
-            HStack(spacing: 16) {
-                // Latency
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("LATENCY")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.white.opacity(0.45))
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text(String(format: "%.1f", latencyMs))
-                            .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .foregroundColor(.green)
-                            .monospacedDigit()
-                        Text("ms")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-
-                // FPS
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("FRAMERATE")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.white.opacity(0.45))
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text(String(format: "%.0f", fps))
-                            .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .foregroundColor(.cyan)
-                            .monospacedDigit()
-                        Text("FPS")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-
-                // Bitrate
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("BITRATE")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.white.opacity(0.45))
-                    HStack(alignment: .firstTextBaseline, spacing: 2) {
-                        Text(String(format: "%.1f", bitrateMbps))
-                            .font(.system(size: 14, weight: .bold, design: .monospaced))
-                            .foregroundColor(.white)
-                            .monospacedDigit()
-                        Text("Mbps")
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(.white.opacity(0.6))
-                    }
-                }
-
-                // Resolution
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("RESOLUTION")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.white.opacity(0.45))
-                    Text(resolution)
-                        .font(.system(size: 12, weight: .bold, design: .monospaced))
-                        .foregroundColor(.white.opacity(0.85))
-                        .monospacedDigit()
-                }
+            // Latency
+            HStack(spacing: 3) {
+                Text(String(format: "%.1f", latencyMs))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .monospacedDigit()
+                Text("ms")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
             }
+
+            // FPS
+            HStack(spacing: 3) {
+                Text(String(format: "%.0f", fps))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .monospacedDigit()
+                Text("fps")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+            }
+
+            // Bitrate
+            HStack(spacing: 3) {
+                Text(String(format: "%.1f", bitrateMbps))
+                    .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                    .foregroundColor(.white)
+                    .monospacedDigit()
+                Text("Mb/s")
+                    .font(.system(size: 9, weight: .medium))
+                    .foregroundColor(.white.opacity(0.45))
+            }
+
+            Rectangle()
+                .fill(Color.white.opacity(0.12))
+                .frame(width: 1, height: 12)
+
+            // Resolution
+            Text(resolution)
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                .foregroundColor(.white.opacity(0.65))
+                .monospacedDigit()
         }
-        .padding(14)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 7)
         .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .clipShape(Capsule())
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+            Capsule()
+                .stroke(Color.white.opacity(0.1), lineWidth: 0.75)
         )
-        .shadow(color: .black.opacity(0.35), radius: 10, y: 5)
+        .shadow(color: .black.opacity(0.2), radius: 8, y: 3)
     }
 }

@@ -8,7 +8,7 @@ public struct MainWindowView: View {
 
     public var body: some View {
         ZStack {
-            // Full-bleed Video Surface
+            // Full-bleed Edge-to-Edge Video Surface
             VideoSurfaceView(
                 pixelBuffer: viewModel.currentPixelBuffer,
                 isConnected: viewModel.connectionState == .connected
@@ -23,10 +23,10 @@ public struct MainWindowView: View {
                 }
             }
 
-            // Top Status & Floating HUD Elements
+            // Floating Minimalist Overlays
             VStack {
+                // Top Floating Status Bar
                 HStack(alignment: .top) {
-                    // Top-Left: Telemetry & System Virtual Camera Stats
                     if viewModel.showStatsOverlay && viewModel.isHudVisible {
                         StatsOverlayView(
                             fps: viewModel.fps,
@@ -35,47 +35,37 @@ public struct MainWindowView: View {
                             resolution: viewModel.resolutionText,
                             virtualCameraActive: viewModel.isVirtualCameraActive
                         )
-                        .transition(.opacity.combined(with: .scale(scale: 0.96)))
+                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
                     }
 
                     Spacer()
 
-                    // Top-Right: Connection Mode / State Pill
                     if viewModel.isHudVisible {
-                        HStack(spacing: 8) {
+                        // Minimalist Connection Status Badge
+                        HStack(spacing: 6) {
                             Circle()
                                 .fill(connectionIndicatorColor)
-                                .frame(width: 8, height: 8)
+                                .frame(width: 6, height: 6)
 
-                            Text(viewModel.connectionState.rawValue)
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundColor(.white)
-
-                            if viewModel.connectionState == .connected {
-                                Text(viewModel.isUSBMode ? "USB" : "Wi-Fi")
-                                    .font(.system(size: 10, weight: .bold, design: .monospaced))
-                                    .padding(.horizontal, 6)
-                                    .padding(.vertical, 2)
-                                    .background(Color.white.opacity(0.15))
-                                    .clipShape(Capsule())
-                                    .foregroundColor(.cyan)
-                            }
+                            Text(viewModel.connectionState == .connected ? (viewModel.isUSBMode ? "USB" : "Wi-Fi") : viewModel.connectionState.rawValue)
+                                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                                .foregroundColor(.white.opacity(0.85))
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
                         .background(.ultraThinMaterial)
                         .clipShape(Capsule())
                         .overlay(
-                            Capsule().stroke(Color.white.opacity(0.12), lineWidth: 1)
+                            Capsule().stroke(Color.white.opacity(0.1), lineWidth: 0.75)
                         )
                         .transition(.opacity)
                     }
                 }
-                .padding(20)
+                .padding(16)
 
                 Spacer()
 
-                // Bottom Floating Control HUD
+                // Bottom Minimalist Floating Control Capsule
                 if viewModel.isHudVisible {
                     ControlOverlayView(
                         isPaused: viewModel.isPaused,
@@ -93,11 +83,11 @@ public struct MainWindowView: View {
                         onOpenSettings: { viewModel.showSettingsSheet = true },
                         onToggleFullscreen: { toggleWindowFullscreen() }
                     )
-                    .padding(.bottom, 24)
+                    .padding(.bottom, 20)
                     .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: viewModel.isHudVisible)
+            .animation(.easeInOut(duration: 0.2), value: viewModel.isHudVisible)
         }
         .sheet(isPresented: $viewModel.showSettingsSheet) {
             SettingsSheet(
@@ -112,7 +102,7 @@ public struct MainWindowView: View {
             viewModel.connect()
             viewModel.triggerMouseMove()
         }
-        // Keyboard Shortcuts
+        // Minimalist Key Handlers
         .background(
             KeyHandlerView(
                 onSpace: { viewModel.togglePlayPause() },
@@ -131,11 +121,11 @@ public struct MainWindowView: View {
     private var connectionIndicatorColor: Color {
         switch viewModel.connectionState {
         case .connected:
-            return .green
+            return Color(red: 0.2, green: 0.85, blue: 0.4)
         case .connecting:
             return .orange
         case .disconnected:
-            return .gray
+            return .gray.opacity(0.6)
         case .failed:
             return .red
         }
@@ -148,7 +138,6 @@ public struct MainWindowView: View {
     }
 }
 
-// Transparent view catching key events
 private struct KeyHandlerView: NSViewRepresentable {
     let onSpace: () -> Void
     let onR: () -> Void

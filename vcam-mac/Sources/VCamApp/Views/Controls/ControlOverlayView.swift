@@ -38,88 +38,104 @@ public struct ControlOverlayView: View {
     }
 
     public var body: some View {
-        HStack(spacing: 12) {
-            // Play / Pause Stream
-            Button(action: onPlayPause) {
-                Image(systemName: isPaused ? "play.fill" : "pause.fill")
-                    .font(.system(size: 15, weight: .semibold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(.white)
-            }
-            .buttonStyle(.plain)
-            .help(isPaused ? "Resume Feed (Space)" : "Pause Feed (Space)")
+        HStack(spacing: 8) {
+            // Play / Pause
+            IconButton(
+                systemName: isPaused ? "play.fill" : "pause.fill",
+                helpText: isPaused ? "Resume (Space)" : "Pause (Space)",
+                isActive: isPaused,
+                action: onPlayPause
+            )
 
             // Reconnect
-            Button(action: onReconnect) {
-                Image(systemName: "arrow.triangle.2.circlepath")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(.white)
-            }
-            .buttonStyle(.plain)
-            .help("Reconnect Stream (R)")
+            IconButton(
+                systemName: "arrow.triangle.2.circlepath",
+                helpText: "Reconnect Stream (R)",
+                action: onReconnect
+            )
 
-            Divider()
-                .frame(height: 20)
-                .background(Color.white.opacity(0.2))
+            HairlineDivider()
 
-            // Lens Switcher Button with text
+            // Lens Switcher Button
             Button(action: onCycleLens) {
-                HStack(spacing: 6) {
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 13, weight: .semibold))
+                HStack(spacing: 5) {
+                    Image(systemName: "camera")
+                        .font(.system(size: 11, weight: .semibold))
                     Text(currentLens)
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
                 }
+                .foregroundColor(.white.opacity(0.85))
                 .padding(.horizontal, 10)
-                .frame(height: 36)
-                .foregroundColor(.white)
+                .frame(height: 28)
+                .background(Color.white.opacity(0.06))
+                .clipShape(Capsule())
             }
             .buttonStyle(.plain)
-            .help("Cycle Camera Lens (C)")
+            .help("Switch Lens (C)")
 
-            Divider()
-                .frame(height: 20)
-                .background(Color.white.opacity(0.2))
+            HairlineDivider()
 
             // Toggle Telemetry Stats
-            Button(action: onToggleStats) {
-                Image(systemName: showStats ? "chart.bar.xaxis" : "chart.bar")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(showStats ? .cyan : .white)
-            }
-            .buttonStyle(.plain)
-            .help("Toggle Stats HUD (I)")
+            IconButton(
+                systemName: "gauge.with.needle",
+                helpText: "Toggle Stats (I)",
+                isActive: showStats,
+                action: onToggleStats
+            )
 
             // Settings Sheet
-            Button(action: onOpenSettings) {
-                Image(systemName: "gearshape.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(.white)
-            }
-            .buttonStyle(.plain)
-            .help("Stream & Virtual Camera Settings")
+            IconButton(
+                systemName: "slider.horizontal.3",
+                helpText: "Settings",
+                action: onOpenSettings
+            )
 
             // Fullscreen
-            Button(action: onToggleFullscreen) {
-                Image(systemName: "arrow.up.left.and.arrow.down.right")
-                    .font(.system(size: 13, weight: .semibold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(.white)
-            }
-            .buttonStyle(.plain)
-            .help("Toggle Fullscreen (F)")
+            IconButton(
+                systemName: "arrow.up.left.and.arrow.down.right",
+                helpText: "Fullscreen (F)",
+                action: onToggleFullscreen
+            )
         }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
         .background(.ultraThinMaterial)
         .clipShape(Capsule())
         .overlay(
             Capsule()
-                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                .stroke(Color.white.opacity(0.1), lineWidth: 0.75)
         )
-        .shadow(color: .black.opacity(0.4), radius: 12, y: 6)
+        .shadow(color: .black.opacity(0.25), radius: 10, y: 4)
+    }
+}
+
+private struct IconButton: View {
+    let systemName: String
+    let helpText: String
+    var isActive: Bool = false
+    let action: () -> Void
+
+    @State private var isHovered = false
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: systemName)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(isActive ? .cyan : (isHovered ? .white : .white.opacity(0.75)))
+                .frame(width: 28, height: 28)
+                .background(isHovered ? Color.white.opacity(0.08) : Color.clear)
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .help(helpText)
+        .onHover { isHovered = $0 }
+    }
+}
+
+private struct HairlineDivider: View {
+    var body: some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.12))
+            .frame(width: 1, height: 14)
     }
 }

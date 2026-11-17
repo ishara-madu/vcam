@@ -2,21 +2,21 @@ package com.pixeleye.vcam.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Primary theme colors
-val NeonCyan = Color(0xFF00E5FF)
-val ElectricBlue = Color(0xFF2979FF)
-val DarkSurface = Color(0xFF131418)
-val DarkSurfaceElevated = Color(0xFF1E2026)
-val DeepBackground = Color(0xFF090A0C)
+// Pure minimalist palette
 val PureBlack = Color(0xFF000000)
+val DarkSurface = Color(0xFF121214)
+val DarkSurfaceElevated = Color(0xFF1C1C1E)
+val GlassScrim = Color(0x33FFFFFF)
+val GlassBorder = Color(0x1FFFFFFF)
 
-// Status indicators
-val LiveGreen = Color(0xFF00E676)
-val LiveRed = Color(0xFFFF334B)
-val WaitingAmber = Color(0xFFFFB300)
-val TorchYellow = Color(0xFFFFD600)
+// Neutral text
+val TextPrimary = Color(0xFFFFFFFF)
+val TextSecondary = Color(0xFF8E8E93)
+val TextTertiary = Color(0xFF48484A)
 
-// Neutral text & borders
-val TextPrimary = Color(0xFFF0F2F5)
-val TextSecondary = Color(0xFF9EABB8)
-val BorderSubtle = Color(0xFF2B2E38)
+// Status accents
+val StatusGreen = Color(0xFF34C759)
+val StatusRed = Color(0xFFFF3B30)
+val StatusAmber = Color(0xFFFF9500)
+val StatusYellow = Color(0xFFFFD60A)
+val AccentCyan = Color(0xFF64D2FF)

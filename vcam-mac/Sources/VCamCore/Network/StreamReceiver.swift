@@ -113,9 +113,9 @@ public final class StreamReceiver: @unchecked Sendable {
     private func handlePacket(_ packet: VCamPacket) {
         switch packet.type {
         case .config:
-            // SPS / PPS configuration packet (Annex B or length prefixed)
+            // SPS / PPS configuration packet (Annex B format)
             if packet.payload.count > 4 {
-                self.decoder.configureWith(sps: packet.payload, pps: packet.payload)
+                self.decoder.configureWith(configPayload: packet.payload)
             }
         case .frameKey, .frameDelta:
             self.decoder.decode(naluData: packet.payload, ptsUs: packet.ptsUs)

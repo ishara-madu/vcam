@@ -26,132 +26,123 @@ public struct SettingsSheet: View {
         VStack(spacing: 20) {
             // Header
             HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("vcam Settings")
-                        .font(.system(size: 18, weight: .bold))
-                    Text("macOS Virtual Camera & Streaming Configuration")
-                        .font(.system(size: 12))
-                        .foregroundColor(.secondary)
-                }
+                Text("Settings")
+                    .font(.system(size: 15, weight: .semibold))
                 Spacer()
                 Button(action: onDismiss) {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 20))
+                    Image(systemName: "xmark")
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundColor(.secondary)
+                        .frame(width: 20, height: 20)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(Circle())
                 }
                 .buttonStyle(.plain)
             }
 
-            Divider()
-
-            // Virtual Camera Configuration Box
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    Image(systemName: "camera.viewfinder")
-                        .font(.system(size: 16, weight: .semibold))
-                        .foregroundColor(.cyan)
-                    Text("macOS System Virtual Camera")
-                        .font(.system(size: 13, weight: .semibold))
-                    Spacer()
-                    Toggle("", isOn: $isVirtualCameraActive)
-                        .toggleStyle(.switch)
+            VStack(spacing: 16) {
+                // Section 1: Virtual Camera System
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Virtual Camera")
+                                .font(.system(size: 12, weight: .medium))
+                            Text("Publishes stream to FaceTime, Zoom, Meet, Teams, OBS")
+                                .font(.system(size: 10))
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Toggle("", isOn: $isVirtualCameraActive)
+                            .toggleStyle(.switch)
+                            .labelsHidden()
+                    }
                 }
+                .padding(12)
+                .background(Color.white.opacity(0.03))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.06), lineWidth: 0.75)
+                )
 
-                Text("When enabled, **vcam Virtual Camera** appears as a native webcam in FaceTime, Zoom, Google Meet, Teams, OBS Studio, and Web Browsers.")
-                    .font(.system(size: 11))
-                    .foregroundColor(.secondary)
-                    .lineSpacing(2)
-
-                HStack(spacing: 6) {
-                    Text("System Extension:")
+                // Section 2: Connection Transport
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("TRANSPORT")
                         .font(.system(size: 10, weight: .semibold))
                         .foregroundColor(.secondary)
-                    Text("CoreMediaIO CMIOExtension")
-                        .font(.system(size: 10, weight: .semibold, design: .monospaced))
-                        .foregroundColor(.cyan)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.white.opacity(0.06))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-            }
-            .padding(14)
-            .background(Color.white.opacity(0.04))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
 
-            // Transport Options
-            VStack(alignment: .leading, spacing: 12) {
-                Text("TRANSPORT & PROTOCOL")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.secondary)
-
-                Picker("Connection Mode", selection: $isUSBMode) {
-                    Text("USB (ADB Tunnel - Zero Latency)").tag(true)
-                    Text("Wi-Fi (Direct LAN Socket)").tag(false)
-                }
-                .pickerStyle(.segmented)
-
-                if isUSBMode {
-                    HStack {
-                        Image(systemName: "cable.connector")
-                            .foregroundColor(.green)
-                        Text("Port Forwarding: **127.0.0.1:\(port)**")
-                            .font(.system(size: 12))
-                        Spacer()
-                        Text("< 2ms USB overhead")
-                            .font(.system(size: 11, design: .monospaced))
-                            .foregroundColor(.green)
+                    Picker("Transport", selection: $isUSBMode) {
+                        Text("USB (ADB Port Forward)").tag(true)
+                        Text("Wi-Fi (Direct LAN)").tag(false)
                     }
-                    .padding(10)
-                    .background(Color.white.opacity(0.04))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
-                } else {
-                    HStack(spacing: 10) {
-                        Text("Phone IP:")
-                            .font(.system(size: 12, weight: .medium))
-                        TextField("192.168.1.x", text: $host)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 140)
+                    .pickerStyle(.segmented)
+                    .labelsHidden()
 
-                        Text("Port:")
-                            .font(.system(size: 12, weight: .medium))
-                        TextField("8088", value: $port, format: .number)
-                            .textFieldStyle(.roundedBorder)
-                            .frame(width: 70)
+                    if isUSBMode {
+                        HStack {
+                            Text("Endpoint: **127.0.0.1:\(port)**")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                            Spacer()
+                            Text("Ultra-low latency")
+                                .font(.system(size: 10, design: .monospaced))
+                                .foregroundColor(Color(red: 0.2, green: 0.85, blue: 0.4))
+                        }
+                        .padding(.top, 2)
+                    } else {
+                        HStack(spacing: 8) {
+                            Text("Phone IP:")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                            TextField("192.168.1.x", text: $host)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 11, design: .monospaced))
+                                .padding(6)
+                                .background(Color.white.opacity(0.04))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                            Text("Port:")
+                                .font(.system(size: 11))
+                                .foregroundColor(.secondary)
+                            TextField("8088", value: $port, format: .number)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 11, design: .monospaced))
+                                .frame(width: 50)
+                                .padding(6)
+                                .background(Color.white.opacity(0.04))
+                                .clipShape(RoundedRectangle(cornerRadius: 6))
+                        }
                     }
                 }
-            }
-            .padding(14)
-            .background(Color.white.opacity(0.04))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+                .padding(12)
+                .background(Color.white.opacity(0.03))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.06), lineWidth: 0.75)
+                )
 
-            // Hardware Decoder Box
-            HStack(spacing: 10) {
-                Image(systemName: "bolt.badge.clock.fill")
-                    .font(.system(size: 16))
-                    .foregroundColor(.green)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("VideoToolbox Real-Time Hardware Decompression")
-                        .font(.system(size: 12, weight: .semibold))
-                    Text("Zero CPU overhead • Decodes directly to NV12 CVPixelBuffer")
-                        .font(.system(size: 10))
+                // Section 3: Hardware Decoding Readout
+                HStack {
+                    Text("Decoder")
+                        .font(.system(size: 11, weight: .medium))
+                    Spacer()
+                    Text("Apple VideoToolbox (Hardware NV12)")
+                        .font(.system(size: 10, design: .monospaced))
                         .foregroundColor(.secondary)
                 }
-                Spacer()
+                .padding(.horizontal, 4)
             }
-            .padding(12)
-            .background(Color.white.opacity(0.04))
-            .clipShape(RoundedRectangle(cornerRadius: 10))
 
             Spacer()
 
             Button("Done") {
                 onDismiss()
             }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.regular)
             .keyboardShortcut(.defaultAction)
             .frame(maxWidth: .infinity)
         }
-        .padding(24)
-        .frame(width: 480, height: 490)
+        .padding(20)
+        .frame(width: 380, height: 350)
     }
 }

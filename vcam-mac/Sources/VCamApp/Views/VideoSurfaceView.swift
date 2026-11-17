@@ -6,6 +6,8 @@ public struct VideoSurfaceView: View {
     public let pixelBuffer: CVPixelBuffer?
     public let isConnected: Bool
 
+    @State private var copied: Bool = false
+
     public init(pixelBuffer: CVPixelBuffer?, isConnected: Bool) {
         self.pixelBuffer = pixelBuffer
         self.isConnected = isConnected
@@ -22,62 +24,52 @@ public struct VideoSurfaceView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(width: geometry.size.width, height: geometry.size.height)
                 } else {
-                    // Modern Minimalist Camera Standby Surface
-                    VStack(spacing: 20) {
-                        ZStack {
-                            Circle()
-                                .stroke(Color.cyan.opacity(0.15), lineWidth: 1)
-                                .frame(width: 140, height: 140)
+                    // Minimalist Standby Canvas
+                    VStack(spacing: 16) {
+                        Image(systemName: "camera")
+                            .font(.system(size: 32, weight: .thin))
+                            .foregroundColor(.white.opacity(0.3))
 
-                            Circle()
-                                .stroke(Color.cyan.opacity(0.35), lineWidth: 1.5)
-                                .frame(width: 90, height: 90)
+                        VStack(spacing: 4) {
+                            Text("Waiting for Android Camera")
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundColor(.white.opacity(0.75))
 
-                            Image(systemName: "video.fill")
-                                .font(.system(size: 32, weight: .semibold))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [.cyan, .blue],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                            Text("Connect via USB or ensure both devices are on the same Wi-Fi")
+                                .font(.system(size: 11))
+                                .foregroundColor(.white.opacity(0.35))
                         }
 
-                        VStack(spacing: 6) {
-                            Text("Waiting for Android Camera Feed")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white.opacity(0.9))
-
-                            Text("Connect your phone via USB and run:")
-                                .font(.system(size: 13, weight: .regular))
-                                .foregroundColor(.white.opacity(0.55))
-
+                        // Minimalist Copy Command Pill
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString("adb forward tcp:8088 tcp:8088", forType: .string)
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                copied = true
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                                withAnimation { copied = false }
+                            }
+                        } label: {
                             HStack(spacing: 8) {
                                 Text("adb forward tcp:8088 tcp:8088")
-                                    .font(.system(size: 12, weight: .semibold, design: .monospaced))
-                                    .foregroundColor(.cyan)
+                                    .font(.system(size: 11, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.65))
 
-                                Button {
-                                    NSPasteboard.general.clearContents()
-                                    NSPasteboard.general.setString("adb forward tcp:8088 tcp:8088", forType: .string)
-                                } label: {
-                                    Image(systemName: "doc.on.doc.fill")
-                                        .font(.system(size: 11))
-                                        .foregroundColor(.cyan.opacity(0.8))
-                                }
-                                .buttonStyle(.plain)
-                                .help("Copy command to clipboard")
+                                Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundColor(copied ? .green : .white.opacity(0.4))
                             }
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.white.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.white.opacity(0.04))
+                            .clipShape(Capsule())
                             .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.cyan.opacity(0.25), lineWidth: 1)
+                                Capsule().stroke(Color.white.opacity(0.08), lineWidth: 0.75)
                             )
                         }
+                        .buttonStyle(.plain)
+                        .help("Copy ADB USB forward command")
                     }
                     .padding(32)
                 }

@@ -10,31 +10,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.FlashlightOff
 import androidx.compose.material.icons.filled.FlashlightOn
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Stop
-import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,14 +34,13 @@ import androidx.compose.ui.unit.sp
 import com.pixeleye.vcam.ui.state.CameraFacing
 import com.pixeleye.vcam.ui.state.LensType
 import com.pixeleye.vcam.ui.state.VcamUiState
-import com.pixeleye.vcam.ui.theme.DarkSurfaceElevated
-import com.pixeleye.vcam.ui.theme.DeepBackground
-import com.pixeleye.vcam.ui.theme.ElectricBlue
-import com.pixeleye.vcam.ui.theme.LiveRed
-import com.pixeleye.vcam.ui.theme.NeonCyan
+import com.pixeleye.vcam.ui.theme.DarkSurface
+import com.pixeleye.vcam.ui.theme.GlassBorder
+import com.pixeleye.vcam.ui.theme.PureBlack
+import com.pixeleye.vcam.ui.theme.StatusRed
+import com.pixeleye.vcam.ui.theme.StatusYellow
 import com.pixeleye.vcam.ui.theme.TextPrimary
 import com.pixeleye.vcam.ui.theme.TextSecondary
-import com.pixeleye.vcam.ui.theme.TorchYellow
 
 @Composable
 fun BottomControlPanel(
@@ -64,84 +55,66 @@ fun BottomControlPanel(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 14.dp),
+            .padding(horizontal = 24.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Lens Zoom Selector (0.5x, 1.0x, 2.0x) - Visible for Back Camera
+        // Floating Minimal Lens Pills (.5, 1x, 2x)
         if (uiState.cameraFacing == CameraFacing.BACK) {
             Row(
                 modifier = Modifier
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(DarkSurfaceElevated.copy(alpha = 0.9f))
-                    .border(1.dp, Color.White.copy(alpha = 0.08f), RoundedCornerShape(24.dp))
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(DarkSurface.copy(alpha = 0.75f))
+                    .border(0.75.dp, GlassBorder, RoundedCornerShape(20.dp))
+                    .padding(3.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp)
             ) {
                 LensType.entries.forEach { lens ->
                     val isSelected = uiState.selectedLens == lens
                     val animatedBg by animateColorAsState(
-                        targetValue = if (isSelected) NeonCyan else Color.Transparent,
+                        targetValue = if (isSelected) Color.White else Color.Transparent,
                         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                        label = "lensBgAnimation"
+                        label = "lensBg"
                     )
-                    val animatedText by animateColorAsState(
-                        targetValue = if (isSelected) DeepBackground else TextSecondary,
-                        label = "lensTextAnimation"
+                    val animatedTextColor by animateColorAsState(
+                        targetValue = if (isSelected) PureBlack else TextSecondary,
+                        label = "lensText"
                     )
 
                     Box(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(20.dp))
+                            .size(width = 36.dp, height = 26.dp)
+                            .clip(CircleShape)
                             .background(animatedBg)
-                            .clickable { onSelectLens(lens) }
-                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                            .clickable { onSelectLens(lens) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = lens.factor,
-                            color = animatedText,
-                            fontSize = 12.sp,
+                            text = lens.factor.replace("x", ""),
+                            color = animatedTextColor,
+                            fontSize = 11.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         )
                     }
                 }
             }
-        } else {
-            // Front Camera active indicator pill
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(DarkSurfaceElevated.copy(alpha = 0.9f))
-                    .padding(horizontal = 14.dp, vertical = 6.dp)
-            ) {
-                Text(
-                    text = "Front Wide-Angle Active",
-                    color = TextSecondary,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
         }
 
-        // Main Controls Row
+        // Main Minimal Shutter Bar
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Torch / Flashlight Button
+            // Torch Button (Translucent Glass Circle)
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
-                    .background(
-                        if (uiState.isTorchActive) TorchYellow.copy(alpha = 0.2f)
-                        else DarkSurfaceElevated
-                    )
+                    .background(DarkSurface.copy(alpha = 0.8f))
                     .border(
-                        1.dp,
-                        if (uiState.isTorchActive) TorchYellow else Color.White.copy(alpha = 0.1f),
+                        0.75.dp,
+                        if (uiState.isTorchActive) StatusYellow else GlassBorder,
                         CircleShape
                     )
                     .clickable { onToggleTorch() },
@@ -150,85 +123,73 @@ fun BottomControlPanel(
                 Icon(
                     imageVector = if (uiState.isTorchActive) Icons.Default.FlashlightOn else Icons.Default.FlashlightOff,
                     contentDescription = "Torch",
-                    tint = if (uiState.isTorchActive) TorchYellow else TextSecondary,
-                    modifier = Modifier.size(24.dp)
+                    tint = if (uiState.isTorchActive) StatusYellow else TextSecondary,
+                    modifier = Modifier.size(19.dp)
                 )
             }
 
-            // Camera Switch Button (Front / Back)
+            // Central Camera Shutter Button (Apple/Leica style)
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(68.dp)
                     .clip(CircleShape)
-                    .background(DarkSurfaceElevated)
-                    .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
+                    .border(2.dp, Color.White.copy(alpha = 0.85f), CircleShape)
+                    .clickable { onToggleStream() }
+                    .padding(5.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (uiState.isStreaming) {
+                    // Recording Red Square Stop Button
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(StatusRed)
+                    )
+                } else {
+                    // Solid White Shutter Button
+                    Box(
+                        modifier = Modifier
+                            .size(52.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                    )
+                }
+            }
+
+            // Camera Switch Button
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(DarkSurface.copy(alpha = 0.8f))
+                    .border(0.75.dp, GlassBorder, CircleShape)
                     .clickable { onSwitchCamera() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Cameraswitch,
-                    contentDescription = "Switch Camera",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-
-            // Primary Start / Stop Stream Hero Button
-            val streamButtonBg = if (uiState.isStreaming) {
-                Brush.horizontalGradient(listOf(LiveRed, Color(0xFFD50000)))
-            } else {
-                Brush.horizontalGradient(listOf(ElectricBlue, NeonCyan))
-            }
-
-            Row(
-                modifier = Modifier
-                    .height(56.dp)
-                    .weight(1f)
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(28.dp))
-                    .shadow(
-                        elevation = if (uiState.isStreaming) 12.dp else 6.dp,
-                        shape = RoundedCornerShape(28.dp),
-                        ambientColor = if (uiState.isStreaming) LiveRed else NeonCyan,
-                        spotColor = if (uiState.isStreaming) LiveRed else NeonCyan
-                    )
-                    .background(streamButtonBg)
-                    .clickable { onToggleStream() }
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = if (uiState.isStreaming) Icons.Default.Stop else Icons.Default.Videocam,
-                    contentDescription = if (uiState.isStreaming) "Stop" else "Start",
-                    tint = if (uiState.isStreaming) Color.White else DeepBackground,
-                    modifier = Modifier.size(22.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (uiState.isStreaming) "STOP STREAM" else "START STREAM",
-                    color = if (uiState.isStreaming) Color.White else DeepBackground,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
+                    contentDescription = "Switch",
+                    tint = TextPrimary.copy(alpha = 0.85f),
+                    modifier = Modifier.size(19.dp)
                 )
             }
 
             // Settings Button
             Box(
                 modifier = Modifier
-                    .size(52.dp)
+                    .size(44.dp)
                     .clip(CircleShape)
-                    .background(DarkSurfaceElevated)
-                    .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
+                    .background(DarkSurface.copy(alpha = 0.8f))
+                    .border(0.75.dp, GlassBorder, CircleShape)
                     .clickable { onOpenSettings() },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    imageVector = Icons.Default.Tune,
                     contentDescription = "Settings",
-                    tint = TextPrimary,
-                    modifier = Modifier.size(24.dp)
+                    tint = TextPrimary.copy(alpha = 0.85f),
+                    modifier = Modifier.size(19.dp)
                 )
             }
         }

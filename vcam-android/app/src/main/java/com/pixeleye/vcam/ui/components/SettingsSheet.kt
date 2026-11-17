@@ -11,11 +11,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,9 +37,8 @@ import com.pixeleye.vcam.ui.state.VideoResolution
 import com.pixeleye.vcam.ui.state.VcamUiState
 import com.pixeleye.vcam.ui.theme.DarkSurface
 import com.pixeleye.vcam.ui.theme.DarkSurfaceElevated
-import com.pixeleye.vcam.ui.theme.DeepBackground
-import com.pixeleye.vcam.ui.theme.LiveGreen
-import com.pixeleye.vcam.ui.theme.NeonCyan
+import com.pixeleye.vcam.ui.theme.GlassBorder
+import com.pixeleye.vcam.ui.theme.PureBlack
 import com.pixeleye.vcam.ui.theme.TextPrimary
 import com.pixeleye.vcam.ui.theme.TextSecondary
 
@@ -61,13 +57,13 @@ fun SettingsSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = DarkSurface,
-        scrimColor = Color.Black.copy(alpha = 0.65f),
-        shape = RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp)
+        scrimColor = Color.Black.copy(alpha = 0.6f),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 12.dp)
+                .padding(horizontal = 24.dp, vertical = 8.dp)
         ) {
             // Header
             Row(
@@ -75,71 +71,31 @@ fun SettingsSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = "Stream Settings",
-                        color = TextPrimary,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Tune camera resolution, framerate & bitrate",
-                        color = TextSecondary,
-                        fontSize = 12.sp
-                    )
-                }
+                Text(
+                    text = "Settings",
+                    color = TextPrimary,
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+
                 IconButton(onClick = onDismiss) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = TextSecondary
+                        tint = TextSecondary,
+                        modifier = Modifier.clip(RoundedCornerShape(12.dp))
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Low-Latency Hardware Badge
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(DarkSurfaceElevated)
-                    .border(1.dp, LiveGreen.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
-                    .padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Bolt,
-                    contentDescription = "HW Accel",
-                    tint = LiveGreen,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(10.dp))
-                Column {
-                    Text(
-                        text = "Hardware Zero-Copy Encoding Active",
-                        color = TextPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = "H.264 Baseline Profile • KEY_LATENCY=0 (sub-30ms)",
-                        color = TextSecondary,
-                        fontSize = 11.sp,
-                        fontFamily = FontFamily.Monospace
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Section 1: Resolution
             Text(
                 text = "RESOLUTION",
                 color = TextSecondary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -152,31 +108,19 @@ fun SettingsSheet(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) NeonCyan else DarkSurfaceElevated)
-                            .border(
-                                1.dp,
-                                if (isSelected) NeonCyan else Color.White.copy(alpha = 0.08f),
-                                RoundedCornerShape(12.dp)
-                            )
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) Color.White else DarkSurfaceElevated)
+                            .border(0.75.dp, GlassBorder, RoundedCornerShape(10.dp))
                             .clickable { onSelectResolution(res) }
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = res.label,
-                                color = if (isSelected) DeepBackground else TextPrimary,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "${res.width}x${res.height}",
-                                color = if (isSelected) DeepBackground.copy(alpha = 0.8f) else TextSecondary,
-                                fontSize = 10.sp,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
+                        Text(
+                            text = res.label,
+                            color = if (isSelected) PureBlack else TextPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                        )
                     }
                 }
             }
@@ -187,8 +131,8 @@ fun SettingsSheet(
             Text(
                 text = "FRAMERATE",
                 color = TextSecondary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -201,22 +145,18 @@ fun SettingsSheet(
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) NeonCyan else DarkSurfaceElevated)
-                            .border(
-                                1.dp,
-                                if (isSelected) NeonCyan else Color.White.copy(alpha = 0.08f),
-                                RoundedCornerShape(12.dp)
-                            )
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) Color.White else DarkSurfaceElevated)
+                            .border(0.75.dp, GlassBorder, RoundedCornerShape(10.dp))
                             .clickable { onSelectFps(fps) }
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "$fps FPS",
-                            color = if (isSelected) DeepBackground else TextPrimary,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold
+                            text = "$fps fps",
+                            color = if (isSelected) PureBlack else TextPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         )
                     }
                 }
@@ -231,18 +171,18 @@ fun SettingsSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "TARGET BITRATE",
+                    text = "BITRATE",
                     color = TextSecondary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.SemiBold,
                     letterSpacing = 1.sp
                 )
                 Text(
                     text = "${uiState.bitrateMbps} Mbps",
-                    color = NeonCyan,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = FontFamily.Monospace
+                    color = TextPrimary,
+                    fontSize = 12.sp,
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
             Spacer(modifier = Modifier.height(4.dp))
@@ -252,28 +192,20 @@ fun SettingsSheet(
                 valueRange = 4f..35f,
                 steps = 6,
                 colors = SliderDefaults.colors(
-                    thumbColor = NeonCyan,
-                    activeTrackColor = NeonCyan,
+                    thumbColor = Color.White,
+                    activeTrackColor = Color.White,
                     inactiveTrackColor = DarkSurfaceElevated
                 )
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(text = "4 Mbps", color = TextSecondary, fontSize = 10.sp)
-                Text(text = "12 Mbps (Standard)", color = TextSecondary, fontSize = 10.sp)
-                Text(text = "35 Mbps (Ultra)", color = TextSecondary, fontSize = 10.sp)
-            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Section 4: Connection Mode (USB vs Wi-Fi)
+            // Section 4: Connection Transport
             Text(
-                text = "CONNECTION TRANSPORT",
+                text = "TRANSPORT",
                 color = TextSecondary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.SemiBold,
                 letterSpacing = 1.sp
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -283,34 +215,30 @@ fun SettingsSheet(
             ) {
                 listOf(
                     ConnectionMode.USB to "USB (ADB Forward)",
-                    ConnectionMode.WIFI to "Wi-Fi (LAN Socket)"
+                    ConnectionMode.WIFI to "Wi-Fi (Direct LAN)"
                 ).forEach { (mode, label) ->
                     val isSelected = uiState.connectionMode == mode
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(if (isSelected) NeonCyan else DarkSurfaceElevated)
-                            .border(
-                                1.dp,
-                                if (isSelected) NeonCyan else Color.White.copy(alpha = 0.08f),
-                                RoundedCornerShape(12.dp)
-                            )
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (isSelected) Color.White else DarkSurfaceElevated)
+                            .border(0.75.dp, GlassBorder, RoundedCornerShape(10.dp))
                             .clickable { onSelectConnectionMode(mode) }
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 10.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = label,
-                            color = if (isSelected) DeepBackground else TextPrimary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
+                            color = if (isSelected) PureBlack else TextPrimary,
+                            fontSize = 11.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }

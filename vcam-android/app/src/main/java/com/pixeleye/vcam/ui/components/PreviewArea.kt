@@ -1,6 +1,5 @@
 package com.pixeleye.vcam.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -8,8 +7,6 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,10 +25,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.BatterySaver
-import androidx.compose.material.icons.filled.CenterFocusStrong
-import androidx.compose.material.icons.filled.ElectricBolt
-import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -42,21 +35,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pixeleye.vcam.ui.state.CameraFacing
 import com.pixeleye.vcam.ui.state.VcamUiState
-import com.pixeleye.vcam.ui.theme.BorderSubtle
 import com.pixeleye.vcam.ui.theme.DarkSurface
-import com.pixeleye.vcam.ui.theme.DarkSurfaceElevated
-import com.pixeleye.vcam.ui.theme.LiveRed
-import com.pixeleye.vcam.ui.theme.NeonCyan
+import com.pixeleye.vcam.ui.theme.GlassBorder
 import com.pixeleye.vcam.ui.theme.PureBlack
+import com.pixeleye.vcam.ui.theme.StatusRed
 import com.pixeleye.vcam.ui.theme.TextPrimary
 import com.pixeleye.vcam.ui.theme.TextSecondary
 
@@ -68,22 +57,22 @@ fun PreviewArea(
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "pulseLive")
     val liveGlowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f,
+        initialValue = 0.4f,
         targetValue = 1.0f,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
         ),
-        label = "liveGlowAlpha"
+        label = "liveAlpha"
     )
 
     Crossfade(
         targetState = uiState.isOledSaverActive,
-        label = "oledModeCrossfade",
+        label = "oledCrossfade",
         modifier = modifier
     ) { isOledActive ->
         if (isOledActive) {
-            // OLED Pure Black Battery Saver Mode
+            // Pure Black OLED Saver Canvas
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -96,243 +85,168 @@ fun PreviewArea(
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(32.dp)
+                    verticalArrangement = Arrangement.Center
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(56.dp)
+                            .size(6.dp)
                             .clip(CircleShape)
-                            .background(DarkSurfaceElevated.copy(alpha = 0.3f))
-                            .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.BatterySaver,
-                            contentDescription = "OLED Saver",
-                            tint = NeonCyan.copy(alpha = 0.8f),
-                            modifier = Modifier.size(28.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Text(
-                        text = "OLED Battery Saver Active",
-                        color = TextPrimary.copy(alpha = 0.75f),
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium
+                            .background(Color.White.copy(alpha = 0.2f))
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Screen pixels powered off to save battery.\nCamera stream continues to Mac.",
-                        color = TextSecondary.copy(alpha = 0.5f),
+                        text = "OLED Saver Active",
+                        color = Color.White.copy(alpha = 0.4f),
                         fontSize = 12.sp,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 16.sp
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.5.sp
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
 
-                    Row(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(DarkSurface.copy(alpha = 0.5f))
-                            .padding(horizontal = 14.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Visibility,
-                            contentDescription = "Tap to Wake",
-                            tint = NeonCyan.copy(alpha = 0.7f),
-                            modifier = Modifier.size(14.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "Tap anywhere to wake preview",
-                            color = NeonCyan.copy(alpha = 0.8f),
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
+                    Text(
+                        text = "Tap to wake viewfinder",
+                        color = Color.White.copy(alpha = 0.2f),
+                        fontSize = 10.sp
+                    )
                 }
             }
         } else {
-            // Normal Camera Viewfinder Area
+            // Edge-to-Edge Minimal Viewfinder
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 12.dp)
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF16181F),
-                                Color(0xFF0F1014),
-                                Color(0xFF1A1C24)
-                            )
-                        )
-                    )
-                    .border(1.dp, BorderSubtle, RoundedCornerShape(24.dp))
+                    .background(Color(0xFF0A0B0E))
             ) {
-                // Viewfinder Reticle in Center
+                // Subtle Center Crosshair / Viewfinder Tick
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CenterFocusStrong,
-                        contentDescription = "Center Focus",
-                        tint = Color.White.copy(alpha = 0.18f),
-                        modifier = Modifier.size(72.dp)
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .border(0.75.dp, Color.White.copy(alpha = 0.12f), CircleShape)
                     )
                 }
 
-                // Top Viewfinder Overlays
+                // Top Minimal Overlays
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(14.dp),
+                        .padding(horizontal = 16.dp, vertical = 10.dp),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Stream Live Status / Idle Badge
+                    // LIVE / STANDBY Indicator
                     if (uiState.isStreaming) {
                         Row(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(LiveRed.copy(alpha = 0.2f))
-                                .border(1.dp, LiveRed.copy(alpha = 0.6f), RoundedCornerShape(14.dp))
-                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                                .clip(CapsuleShape)
+                                .background(DarkSurface.copy(alpha = 0.75f))
+                                .border(0.75.dp, GlassBorder, CapsuleShape)
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(7.dp)
+                                    .size(6.dp)
                                     .alpha(liveGlowAlpha)
                                     .clip(CircleShape)
-                                    .background(LiveRed)
+                                    .background(StatusRed)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "LIVE STREAM",
-                                color = LiveRed,
-                                fontSize = 11.sp,
+                                text = "REC",
+                                color = StatusRed,
+                                fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
-                                fontFamily = FontFamily.Monospace
+                                fontFamily = FontFamily.Monospace,
+                                letterSpacing = 0.5.sp
                             )
                         }
                     } else {
-                        Row(
+                        Text(
+                            text = "READY",
+                            color = TextSecondary.copy(alpha = 0.6f),
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Medium,
+                            fontFamily = FontFamily.Monospace,
+                            letterSpacing = 0.5.sp,
                             modifier = Modifier
-                                .clip(RoundedCornerShape(14.dp))
-                                .background(DarkSurfaceElevated.copy(alpha = 0.8f))
-                                .padding(horizontal = 10.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "STANDBY",
-                                color = TextSecondary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                fontFamily = FontFamily.Monospace
-                            )
-                        }
+                                .clip(CapsuleShape)
+                                .background(DarkSurface.copy(alpha = 0.6f))
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
                     }
 
-                    // OLED Saver Quick Toggle Button
+                    // OLED Dim Mode Trigger
                     Row(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(DarkSurfaceElevated.copy(alpha = 0.85f))
-                            .border(1.dp, Color.White.copy(alpha = 0.12f), RoundedCornerShape(16.dp))
+                            .clip(CapsuleShape)
+                            .background(DarkSurface.copy(alpha = 0.75f))
+                            .border(0.75.dp, GlassBorder, CapsuleShape)
                             .clickable { onToggleOledSaver() }
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Default.VisibilityOff,
-                            contentDescription = "OLED Saver",
-                            tint = NeonCyan,
-                            modifier = Modifier.size(13.dp)
+                            contentDescription = "OLED",
+                            tint = TextSecondary,
+                            modifier = Modifier.size(11.dp)
                         )
-                        Spacer(modifier = Modifier.width(5.dp))
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "OLED Dim",
-                            color = TextPrimary,
-                            fontSize = 11.sp,
+                            color = TextSecondary,
+                            fontSize = 10.sp,
                             fontWeight = FontWeight.Medium
                         )
                     }
                 }
 
-                // Bottom Viewfinder Telemetry Bar (Resolution, FPS, Bitrate)
+                // Bottom Viewfinder Telemetry Pill
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, PureBlack.copy(alpha = 0.8f))
-                            )
-                        )
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Lens indicator
-                    Text(
-                        text = if (uiState.cameraFacing == CameraFacing.BACK) {
-                            "Back • ${uiState.selectedLens.factor}"
-                        } else {
-                            "Front Camera"
-                        },
-                        color = TextSecondary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    // Resolution & Bitrate Tags
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier
+                            .clip(CapsuleShape)
+                            .background(DarkSurface.copy(alpha = 0.8f))
+                            .border(0.75.dp, GlassBorder, CapsuleShape)
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Resolution + FPS
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(DarkSurfaceElevated.copy(alpha = 0.9f))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "${uiState.resolution.label} ${uiState.fps}fps",
-                                color = NeonCyan,
-                                fontSize = 11.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
-
-                        // Bitrate
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(DarkSurfaceElevated.copy(alpha = 0.9f))
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(
-                                text = "${uiState.bitrateMbps} Mbps",
-                                color = TextPrimary,
-                                fontSize = 11.sp,
-                                fontFamily = FontFamily.Monospace,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                        }
+                        Text(
+                            text = "${uiState.resolution.label} ${uiState.fps}fps",
+                            color = TextPrimary.copy(alpha = 0.85f),
+                            fontSize = 10.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = " • ",
+                            color = TextSecondary.copy(alpha = 0.4f),
+                            fontSize = 10.sp
+                        )
+                        Text(
+                            text = "${uiState.bitrateMbps} Mb/s",
+                            color = TextSecondary,
+                            fontSize = 10.sp,
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Medium
+                        )
                     }
                 }
             }
         }
     }
 }
+
+private val CapsuleShape = RoundedCornerShape(16.dp)

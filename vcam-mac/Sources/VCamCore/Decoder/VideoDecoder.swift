@@ -22,7 +22,23 @@ public final class VideoDecoder: @unchecked Sendable {
         formatDescription = nil
     }
 
-    /// Configures the decoder using SPS and PPS NAL units from PACKET_CONFIG
+    /// Configures the decoder by extracting SPS and PPS from Annex B config payload
+    @discardableResult
+    public func configureWith(configPayload: Data) -> Bool {
+        let nalus = extractAnnexBNalus(from: configPayload)
+        // SPS NAL unit type is 7, PPS is 8
+        guard let sps = nalus.first(where: { ($0.first ?? 0) & 0x1F == 7 }),
+              let pps = nalus.first(where: { ($0.first ?? 0) & 0x1F == 8 }) else {
+            // If unable to distinguish by type, try using first two NALUs if available
+            if nalus.count >= 2 {
+                return configureWith(sps: nalus[0], pps: nalus[1])
+            }
+            return false
+        }
+        return configureWith(sps: sps, pps: pps)
+    }
+
+    /// Configures the decoder using pure SPS and PPS NAL units (without start codes)
     @discardableResult
     public func configureWith(sps: Data, pps: Data) -> Bool {
         invalidate()
@@ -88,33 +104,36 @@ public final class VideoDecoder: @unchecked Sendable {
     public func decode(naluData: Data, ptsUs: Int64) {
         guard let session = decompressionSession, let format = formatDescription else { return }
 
-        // Convert NAL unit to CMSampleBuffer
+        // Convert Annex B start codes (00 00 00 01) to 4-byte AVCC length prefix
+        let avccData = convertAnnexBToAVCC(naluData)
+        guard !avccData.isEmpty else { return }
+
         var blockBuffer: CMBlockBuffer?
         let blockStatus = CMBlockBufferCreateWithMemoryBlock(
             allocator: kCFAllocatorDefault,
             memoryBlock: nil,
-            blockLength: naluData.count,
+            blockLength: avccData.count,
             blockAllocator: kCFAllocatorDefault,
             customBlockSource: nil,
             offsetToData: 0,
-            dataLength: naluData.count,
+            dataLength: avccData.count,
             flags: 0,
             blockBufferOut: &blockBuffer
         )
 
         guard blockStatus == kCMBlockBufferNoErr, let block = blockBuffer else { return }
 
-        _ = naluData.withUnsafeBytes { rawPtr in
+        _ = avccData.withUnsafeBytes { rawPtr in
             CMBlockBufferReplaceDataBytes(
                 with: rawPtr.baseAddress!,
                 blockBuffer: block,
                 offsetIntoDestination: 0,
-                dataLength: naluData.count
+                dataLength: avccData.count
             )
         }
 
         var sampleBuffer: CMSampleBuffer?
-        let sampleSizeArray = [naluData.count]
+        let sampleSizeArray = [avccData.count]
         var timingInfo = CMSampleTimingInfo(
             duration: CMTime.invalid,
             presentationTimeStamp: CMTime(value: ptsUs, timescale: 1_000_000),
@@ -145,6 +164,72 @@ public final class VideoDecoder: @unchecked Sendable {
             frameRefcon: contextPtr,
             infoFlagsOut: &flags
         )
+    }
+
+    /// Converts Annex B NAL unit(s) into AVCC (4-byte length prefixed) buffer
+    private func convertAnnexBToAVCC(_ data: Data) -> Data {
+        let nalus = extractAnnexBNalus(from: data)
+        guard !nalus.isEmpty else { return data }
+
+        var avccBuffer = Data()
+        for nalu in nalus {
+            var length = UInt32(nalu.count).bigEndian
+            withUnsafeBytes(of: &length) { avccBuffer.append(contentsOf: $0) }
+            avccBuffer.append(nalu)
+        }
+        return avccBuffer
+    }
+
+    /// Splits an Annex B byte sequence into individual NAL units (without start codes)
+    private func extractAnnexBNalus(from data: Data) -> [Data] {
+        var nalus: [Data] = []
+        let count = data.count
+        guard count >= 4 else { return [] }
+
+        data.withUnsafeBytes { rawBuffer in
+            let bytes = rawBuffer.bindMemory(to: UInt8.self).baseAddress!
+            var startIndices: [Int] = []
+
+            var i = 0
+            while i < count - 3 {
+                if bytes[i] == 0 && bytes[i + 1] == 0 {
+                    if bytes[i + 2] == 1 {
+                        startIndices.append(i + 3)
+                        i += 3
+                        continue
+                    } else if bytes[i + 2] == 0 && i < count - 4 && bytes[i + 3] == 1 {
+                        startIndices.append(i + 4)
+                        i += 4
+                        continue
+                    }
+                }
+                i += 1
+            }
+
+            for idx in 0..<startIndices.count {
+                let start = startIndices[idx]
+                let end: Int
+                if idx + 1 < startIndices.count {
+                    var nextStart = startIndices[idx + 1]
+                    // Step back past the 00 00 01 or 00 00 00 01
+                    if nextStart >= 4 && bytes[nextStart - 4] == 0 {
+                        nextStart -= 4
+                    } else if nextStart >= 3 {
+                        nextStart -= 3
+                    }
+                    end = nextStart
+                } else {
+                    end = count
+                }
+
+                if end > start {
+                    let naluData = Data(bytes: bytes.advanced(by: start), count: end - start)
+                    nalus.append(naluData)
+                }
+            }
+        }
+
+        return nalus
     }
 }
 
